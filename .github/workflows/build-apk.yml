@@ -5,6 +5,10 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
+# Fixes the GitHub Node.js deprecation warning
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -16,7 +20,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '22' # Upgraded to match modern GitHub standards
 
     - name: Setup Java JDK
       uses: actions/setup-java@v4
@@ -24,11 +28,18 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
+    - name: Prepare Clean Web Folder
+      run: |
+        # Creates a dedicated folder so the Android compiler doesn't choke on node_modules
+        mkdir www
+        cp index.html style.css script.js www/
+
     - name: Initialize Capacitor Framework
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        npx cap init "Syllabus Tracker" "com.myexam.syllabustracker" --web-dir "."
+        # Pointing the web-dir specifically to our clean 'www' folder
+        npx cap init "Syllabus Tracker" "com.myexam.syllabustracker" --web-dir "www"
         npx cap add android
         npx cap sync android
 
