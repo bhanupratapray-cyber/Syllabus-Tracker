@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Syllabus Tracker</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>My Exam Syllabus Tracker</h1>
+            <div class="toggle-container">
+                <label>Display Format:</label>
+                <button id="toggleFormat">Showing: Count (e.g., 1/10)</button>
+            </div>
+        </header>
+
+        <section class="dashboard">
+            <div class="card total-card">
+                <h2>Total Progress</h2>
+                <div class="progress-circle" id="totalCircle">
+                    <span id="totalText">0/79</span>
+                </div>
+            </div>
+            <div class="subject-cards" id="subjectCards">
+                <!-- Subject progress cards will generate here -->
+            </div>
+        </section>
+
+        <section class="topics-container" id="topicsContainer">
+            <!-- Accordion lists will generate here -->
+        </section>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
