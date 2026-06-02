@@ -6,7 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  # Handles the GitHub server upgrade warning
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -26,16 +25,13 @@ jobs:
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
-        java-version: '17'
+        java-version: '21' # Upgraded from 17 to 21 to match Capacitor's requirements
 
     - name: Prepare Clean Web Folder
       run: |
         mkdir -p www
-        # A safer copy command that catches any HTML/CSS/JS files regardless of exact names
         cp *.html *.css *.js www/ 2>/dev/null || :
-        
-        # Failsafe: Ensures an index.html exists so the Android compiler doesn't crash
-        if [ ! -f www/index.html ]; then echo "<html><body>Error: index.html not found in root repository folder.</body></html>" > www/index.html; fi
+        if [ ! -f www/index.html ]; then echo "<html><body>Error: index.html not found.</body></html>" > www/index.html; fi
 
     - name: Initialize Capacitor Framework
       run: |
@@ -49,7 +45,6 @@ jobs:
       working-directory: ./android
       run: |
         chmod +x ./gradlew
-        # Added --no-daemon to prevent the server from running out of RAM and crashing
         ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK Artifact
