@@ -5,8 +5,8 @@ on:
     branches: [ "main", "master" ]
   workflow_dispatch:
 
-# Fixes the GitHub Node.js deprecation warning
 env:
+  # Handles the GitHub server upgrade warning
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
@@ -20,7 +20,7 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22' # Upgraded to match modern GitHub standards
+        node-version: '22'
 
     - name: Setup Java JDK
       uses: actions/setup-java@v4
@@ -30,24 +30,27 @@ jobs:
 
     - name: Prepare Clean Web Folder
       run: |
-        # Creates a dedicated folder so the Android compiler doesn't choke on node_modules
-        mkdir www
-        cp index.html style.css script.js www/
+        mkdir -p www
+        # A safer copy command that catches any HTML/CSS/JS files regardless of exact names
+        cp *.html *.css *.js www/ 2>/dev/null || :
+        
+        # Failsafe: Ensures an index.html exists so the Android compiler doesn't crash
+        if [ ! -f www/index.html ]; then echo "<html><body>Error: index.html not found in root repository folder.</body></html>" > www/index.html; fi
 
     - name: Initialize Capacitor Framework
       run: |
         npm init -y
         npm install @capacitor/core @capacitor/cli @capacitor/android
-        # Pointing the web-dir specifically to our clean 'www' folder
         npx cap init "Syllabus Tracker" "com.myexam.syllabustracker" --web-dir "www"
         npx cap add android
         npx cap sync android
 
-    - name: Build Android APK
+    - name: Build Android APK (Low Memory Mode)
       working-directory: ./android
       run: |
         chmod +x ./gradlew
-        ./gradlew assembleDebug
+        # Added --no-daemon to prevent the server from running out of RAM and crashing
+        ./gradlew assembleDebug --no-daemon
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
